@@ -1,0 +1,11 @@
+{
+  "name": "Lifelong English Learning",
+  "short_name": "English Log",
+  "description": "英文學習紀錄與複習管理",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#edf3ff",
+  "icons": []
+}
