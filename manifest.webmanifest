@@ -1,11 +1,20 @@
 {
+  "id": "./",
   "name": "Lifelong English Learning",
   "short_name": "English Log",
   "description": "英文學習紀錄與複習管理",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f5f7fb",
   "theme_color": "#edf3ff",
-  "icons": []
+  "icons": [
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
