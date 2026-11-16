@@ -66,14 +66,24 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
 </section>
 <section id="records" class="view hidden"><div class="panel"><h2>歷史學習紀錄</h2><div class="toolbar"><input id="search" placeholder="搜尋主題、詞彙或內容……" style="max-width:360px"><select id="filterPhase" style="max-width:190px"><option value="">所有階段</option><option value="1">Phase 1</option><option value="2">Phase 2</option><option value="3">Phase 3</option><option value="4">Phase 4+</option></select></div><div id="recordList" class="empty">尚無紀錄</div></div></section>
 <section id="vocab" class="view hidden"><div class="panel"><h2>詞彙複習清單</h2><p class="hint">詞彙由每堂課的紀錄自動彙整。可標記「熟悉」，也可依照複習日期再次練習。</p><div id="vocabList" class="empty">尚未新增詞彙。</div></div></section>
-<section id="backup" class="view hidden"><div class="panel"><h2>資料備份與還原</h2><p>目前版本將資料儲存在這台裝置的瀏覽器中。清除瀏覽器資料或更換裝置前，請先匯出 JSON 備份。</p><div class="actions"><button class="primary" id="export">匯出 JSON 備份</button><label class="secondary" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">匯入 JSON 備份<input id="importFile" type="file" accept="application/json,.json" hidden></label></div><p class="hint" style="margin-top:14px">重要：GitHub Pages 負責網站發布，不會自動同步不同裝置的紀錄。跨裝置同步需要再串接具備登入與資料庫的服務（例如 Supabase）；本版先完成可用的學習紀錄、離線開啟及備份功能。</p></div></section>
+<section id="backup" class="view hidden">
+ <div class="panel"><h2>資料備份與還原</h2>
+ <p>資料只儲存在這台裝置的瀏覽器，不會上傳雲端。每次新增、編輯或刪除紀錄時，系統會自動建立一份本機安全備份。</p>
+ <p id="backupStatus" class="hint">正在檢查自動備份……</p>
+ <div class="actions"><button class="primary" id="export">匯出 JSON 備份</button><button class="secondary" id="restoreAuto">從本機自動備份還原</button><label class="secondary" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">匯入 JSON 備份<input id="importFile" type="file" accept="application/json,.json" hidden></label></div>
+ <p class="hint" style="margin-top:14px">注意：本機自動備份與主要資料都在同一個瀏覽器儲存空間。若清除網站資料、重設瀏覽器或更換裝置，兩份資料都可能消失。請定期使用「匯出 JSON 備份」另存到電腦或其他安全位置；不同裝置不會自動同步。</p>
+ </div></section>
 <footer class="hint" style="text-align:center;padding:12px">Lifelong English Learning · Your progress, one lesson at a time.</footer>
 </main>
 <script>
 const KEY='lifelongEnglishLearning.v1';
 let records=load();
 function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
-function save(){localStorage.setItem(KEY,JSON.stringify(records));render()}
+const BACKUP_KEY=KEY+'.safety.v1';
+function writeSafetyBackup(data=records){const payload={app:'Lifelong English Learning',version:1,savedAt:new Date().toISOString(),records:data};localStorage.setItem(BACKUP_KEY,JSON.stringify(payload));}
+function save(){const payload=JSON.stringify(records);localStorage.setItem(KEY,payload);writeSafetyBackup(records);render();renderBackupStatus()}
+function renderBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;try{const b=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null');el.textContent=b&&Array.isArray(b.records)?'自動備份已啟用｜最近備份：'+new Date(b.savedAt).toLocaleString('zh-TW')+'｜'+b.records.length+' 筆紀錄':'尚無自動備份';}catch{el.textContent='自動備份資料讀取異常；請先匯出目前資料。'}}
+
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function words(r){return (r.vocabulary||'').split(/\n/).map(x=>x.trim()).filter(Boolean).map(line=>{const a=line.split('｜');return {term:a[0]||'',meaning:a[1]||'',pron:a[2]||'',example:a[3]||''}})}
 function phaseName(p){return ({1:'Phase 1｜半年基礎強化',2:'Phase 2｜商務英文進階',3:'Phase 3｜專業英文深化',4:'Phase 4+｜持續進階'})[p]||'Phase 1'}
@@ -100,8 +110,10 @@ window.editRecord=id=>{const r=records.find(x=>x.id===id);if(!r)return;document.
 window.deleteRecord=id=>{if(confirm('確定刪除這筆學習紀錄？此動作無法復原，建議先備份。')){records=records.filter(r=>r.id!==id);save()}};
 document.getElementById('search').addEventListener('input',renderRecords);document.getElementById('filterPhase').addEventListener('change',renderRecords);
 document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Lifelong English Learning',version:1,exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='english-learning-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
-document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw Error('格式不正確');if(confirm('匯入 '+incoming.length+' 筆紀錄？目前資料將與備份合併，同 ID 的紀錄以備份內容為準。')){const m=new Map(records.map(r=>[r.id,r]));incoming.forEach((r,i)=>m.set(r.id||('import-'+Date.now()+'-'+i),r));records=[...m.values()];save();alert('匯入完成。')} }catch(err){alert('無法匯入：'+err.message)}e.target.value=''};
+document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw Error('格式不正確');if(confirm('匯入 '+incoming.length+' 筆紀錄？目前資料將與備份合併，同 ID 的紀錄以匯入內容為準。匯入前會先保留目前資料的自動備份。')){writeSafetyBackup(records);const m=new Map(records.map(r=>[r.id,r]));incoming.forEach((r,i)=>{if(!r||typeof r!=='object')throw Error('備份內含無效紀錄');m.set(r.id||('import-'+Date.now()+'-'+i),r)});records=[...m.values()];save();alert('匯入完成。')} }catch(err){alert('無法匯入：'+err.message)}e.target.value=''};
+document.getElementById('restoreAuto').onclick=()=>{try{const b=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null');if(!b||!Array.isArray(b.records))throw Error('找不到有效的自動備份');if(!confirm('將以自動備份的 '+b.records.length+' 筆紀錄取代目前畫面資料？還原前會先備份目前資料。'))return;writeSafetyBackup(records);records=b.records;localStorage.setItem(KEY,JSON.stringify(records));render();renderBackupStatus();alert('已從本機自動備份還原。');}catch(err){alert('還原失敗：'+err.message)}};
+if(!localStorage.getItem(BACKUP_KEY)&&records.length){try{writeSafetyBackup(records)}catch(e){}}
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
-render();
+render();renderBackupStatus();
 </script>
 </body></html>
