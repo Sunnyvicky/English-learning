@@ -71,7 +71,7 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
 </style>
 </head>
 <body>
-<header><div class="wrap" style="padding:0 16px"><h1>Lifelong English Learning</h1><div class="subtitle">持續學習・持續評估・持續升級｜個人英文學習紀錄</div></div></header>
+<header><div class="wrap" style="padding:0 16px"><h1>Lifelong English Learning</h1><div class="subtitle">ChatGPT 負責每日英文教學｜本 App 負責學習進度與課後紀錄</div></div></header>
 <main class="wrap">
 <section class="summary">
  <div class="stat"><small>累積課程</small><strong id="count">0</strong></div>
@@ -83,6 +83,7 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
  <button class="tab active" data-tab="overview">學習總覽</button><button class="tab" data-tab="add">新增學習紀錄</button><button class="tab" data-tab="records">歷史紀錄</button><button class="tab" data-tab="vocab">詞彙複習</button><button class="tab" data-tab="backup">備份與設定</button>
 </nav>
 <section id="overview" class="view">
+ <div class="panel"><h2>每日學習方式</h2><ol style="margin:0;padding-left:22px"><li><b>晚上 6:10：打開 ChatGPT</b>，輸入「開始今天的英文課」，由 ChatGPT 帶領約 30 分鐘課程。</li><li><b>課程結束：</b>請 ChatGPT 整理本日單字、文法／用字、聽力／發音、已熟悉項目及待複習目標。</li><li><b>回到本 App：</b>查看及保存學習紀錄、追蹤累積進度與詞彙複習。</li></ol><p class="hint" style="margin-bottom:0">本 App 是學習紀錄與進度管理工具，不是英文對話教室。ChatGPT 與 App 的課後資料自動傳送功能仍待後續整合。</p></div>
  <div class="panel"><h2>整體學習架構</h2><div class="phasegrid">
   <article class="phase"><b>Phase 1｜半年基礎強化</b><p>文法、字彙、聽力、口說</p><span class="tag">前六個月主要目標</span><div class="progress"><i id="p1"></i></div></article>
   <article class="phase"><b>Phase 2｜商務英文進階</b><p>會議、談判、簡報、Email</p><span class="tag">前六個月主要目標</span><div class="progress"><i id="p2"></i></div></article>
@@ -114,10 +115,10 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
 <section id="vocab" class="view hidden"><div class="panel"><h2>詞彙複習清單</h2><p class="hint">詞彙由每堂課的紀錄自動彙整。可標記「熟悉」，也可依照複習日期再次練習。</p><div id="vocabList" class="empty">尚未新增詞彙。</div></div></section>
 <section id="backup" class="view hidden">
  <div class="panel"><h2>資料備份與還原</h2>
- <p>資料只儲存在這台裝置的瀏覽器，不會上傳雲端。每次新增、編輯或刪除紀錄時，系統會自動建立一份本機安全備份。</p>
+ <p>目前資料儲存在這台裝置的瀏覽器，並有本機安全備份。Google Drive 跨裝置同步仍在設定中；ChatGPT 課後紀錄自動寫入 App 也尚未完成整合。</p>
  <p id="backupStatus" class="hint">正在檢查自動備份……</p>
  <div class="actions"><button class="primary" id="export">匯出 JSON 備份</button><button class="secondary" id="restoreAuto">從本機自動備份還原</button><label class="secondary" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">匯入 JSON 備份<input id="importFile" type="file" accept="application/json,.json" hidden></label></div>
- <p class="hint" style="margin-top:14px">注意：本機自動備份與主要資料都在同一個瀏覽器儲存空間。若清除網站資料、重設瀏覽器或更換裝置，兩份資料都可能消失。請定期使用「匯出 JSON 備份」另存到電腦或其他安全位置；不同裝置不會自動同步。</p>
+ <p class="hint" style="margin-top:14px">注意：在 Google Drive 同步正式完成前，本機自動備份與主要資料都在同一個瀏覽器儲存空間。若清除網站資料、重設瀏覽器或更換裝置，兩份資料都可能消失。請定期匯出 JSON 備份；目前不同裝置尚不會自動同步。</p>
  </div></section>
 <footer class="hint" style="text-align:center;padding:12px">Lifelong English Learning · Your progress, one lesson at a time.</footer>
 </main>
