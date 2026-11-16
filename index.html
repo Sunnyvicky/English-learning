@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#edf3ff">
+<meta name="description" content="Lifelong English Learning｜英文學習紀錄與複習管理">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Lifelong English Learning</title>
+<style>
+:root{--ink:#202b3c;--muted:#718096;--line:#e4eaf2;--blue:#5276bd;--blue2:#eaf0ff;--bg:#f5f7fb;--white:#fff;--green:#2e805e;--amber:#a86a16;--red:#b94c4c;--shadow:0 8px 26px rgba(35,54,86,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;line-height:1.55}
+header{background:linear-gradient(120deg,#eaf0ff,#f6f8ff);border-bottom:1px solid #e1e8f5;padding:25px max(18px,calc((100% - 1100px)/2)) 22px}
+h1{font-size:clamp(23px,4vw,30px);margin:0 0 5px;letter-spacing:.2px}.subtitle{color:var(--muted);font-size:14px}
+.wrap{max-width:1100px;margin:auto;padding:20px 16px 60px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 18px}.stat,.panel,.phase{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.stat{padding:15px 16px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:4px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}.tab,button{border:0;border-radius:10px;padding:10px 15px;font:inherit;cursor:pointer}.tab{background:#e9edf4;color:#536176;white-space:nowrap}.tab.active{background:var(--blue);color:white}
+.panel{padding:20px;margin-bottom:16px}.panel h2{font-size:19px;margin:0 0 15px}.panel h3{font-size:16px;margin:0 0 10px}
+.phasegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.phase{padding:16px;box-shadow:none}.phase p{margin:5px 0;color:var(--muted);font-size:14px}.phase b{font-size:17px}.tag{display:inline-block;font-size:12px;border-radius:20px;padding:3px 9px;background:var(--blue2);color:#47649d;margin-top:8px}
+.progress{height:7px;background:#edf0f5;border-radius:9px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;background:var(--blue);width:0}
+form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{display:block;font-size:13px;color:#526176;font-weight:600;margin-bottom:5px}input,select,textarea{width:100%;border:1px solid #dbe2ec;border-radius:9px;padding:10px 11px;font:inherit;background:#fff;color:var(--ink)}textarea{min-height:78px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #c9d8fa;border-color:#8ca7df}.field{margin-bottom:13px}.full{grid-column:1/-1}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.primary{background:var(--blue);color:#fff}.secondary{background:#edf1f7;color:#41516a}.danger{background:#fff0f0;color:var(--red)}.success{background:#e9f5ef;color:var(--green)}
+.log{border-top:1px solid var(--line);padding:15px 0}.log:first-child{border-top:0}.logtop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.log h3{margin:0;font-size:16px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.log p{margin:8px 0 0;white-space:pre-wrap;font-size:14px}.empty{color:var(--muted);text-align:center;padding:30px 12px}.hint{font-size:12px;color:var(--muted)}.vocab{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0}.vocab strong{color:#3f5e99}.hidden{display:none!important}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+@media(max-width:650px){.summary{grid-template-columns:repeat(2,1fr)}.phasegrid,form .grid{grid-template-columns:1fr}.panel{padding:16px}.wrap{padding:15px 12px 45px}.logtop{display:block}.logtop .actions{margin-top:8px}}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0 16px"><h1>Lifelong English Learning</h1><div class="subtitle">持續學習・持續評估・持續升級｜個人英文學習紀錄</div></div></header>
+<main class="wrap">
+<section class="summary">
+ <div class="stat"><small>累積課程</small><strong id="count">0</strong></div>
+ <div class="stat"><small>累積學習時間</small><strong id="hours">0 h</strong></div>
+ <div class="stat"><small>累積詞彙／片語</small><strong id="words">0</strong></div>
+ <div class="stat"><small>最近學習日期</small><strong id="last" style="font-size:17px">—</strong></div>
+</section>
+<nav class="tabs">
+ <button class="tab active" data-tab="overview">學習總覽</button><button class="tab" data-tab="add">新增學習紀錄</button><button class="tab" data-tab="records">歷史紀錄</button><button class="tab" data-tab="vocab">詞彙複習</button><button class="tab" data-tab="backup">備份與設定</button>
+</nav>
+<section id="overview" class="view">
+ <div class="panel"><h2>整體學習架構</h2><div class="phasegrid">
+  <article class="phase"><b>Phase 1｜半年基礎強化</b><p>文法、字彙、聽力、口說</p><span class="tag">前六個月主要目標</span><div class="progress"><i id="p1"></i></div></article>
+  <article class="phase"><b>Phase 2｜商務英文進階</b><p>會議、談判、簡報、Email</p><span class="tag">前六個月主要目標</span><div class="progress"><i id="p2"></i></div></article>
+  <article class="phase"><b>Phase 3｜專業英文深化</b><p>Optics・Semiconductor・AI・Technology</p><span class="tag">六個月內盡可能涵蓋</span><div class="progress"><i id="p3"></i></div></article>
+  <article class="phase"><b>Phase 4+｜持續進階</b><p>流利表達、即席應答、國際溝通</p><span class="tag">長期持續，不設期限</span><div class="progress"><i id="p4"></i></div></article>
+ </div><p class="hint">階段進度依已儲存的課程紀錄自動估算；這是學習活動統計，不代表能力測驗結果。</p></div>
+ <div class="panel"><h2>最近學習</h2><div id="recent" class="empty">目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。</div></div>
+</section>
+<section id="add" class="view hidden">
+ <div class="panel"><h2 id="formTitle">新增一堂學習紀錄</h2><form id="recordForm">
+ <input type="hidden" id="editId">
+ <div class="grid">
+  <div class="field"><label for="date">學習日期</label><input id="date" type="date" required></div>
+  <div class="field"><label for="phase">學習階段</label><select id="phase"><option value="1">Phase 1｜半年基礎強化</option><option value="2">Phase 2｜商務英文進階</option><option value="3">Phase 3｜專業英文深化</option><option value="4">Phase 4+｜持續進階</option></select></div>
+  <div class="field"><label for="minutes">學習時間（分鐘）</label><input id="minutes" type="number" min="1" max="600" placeholder="例如：30"></div>
+  <div class="field"><label for="topic">今日主題</label><input id="topic" placeholder="例如：Handling delivery delays"></div>
+  <div class="field full"><label for="vocabulary">今日新詞彙／片語（每行一筆）</label><textarea id="vocabulary" placeholder="mitigate｜降低／緩解｜/ˈmɪtɪɡeɪt/｜mitigate the risk"></textarea><div class="hint">格式：英文｜中文意思｜發音（IPA 或提示）｜搭配詞／例句。可只填已知欄位。</div></div>
+  <div class="field"><label for="listening">聽力／發音重點</label><textarea id="listening" placeholder="連音、弱讀、重音、口音辨識……"></textarea></div>
+  <div class="field"><label for="grammar">文法／用字修正</label><textarea id="grammar" placeholder="原句 → 更自然的表達"></textarea></div>
+  <div class="field"><label for="speaking">口說練習／表達升級</label><textarea id="speaking" placeholder="今天練習的句型、對話表現……"></textarea></div>
+  <div class="field"><label for="mastered">已熟悉的內容</label><textarea id="mastered" placeholder="已能理解並自然使用……"></textarea></div>
+  <div class="field"><label for="review">待複習／容易出錯</label><textarea id="review" placeholder="還不熟悉的詞彙、句型或發音……"></textarea></div>
+  <div class="field full"><label for="next">下一堂課目標</label><textarea id="next" placeholder="下次要複習或加強的項目……"></textarea></div>
+ </div>
+ <div class="actions"><button class="primary" type="submit">儲存紀錄</button><button class="secondary" type="button" id="clearForm">清空表單</button></div>
+ </form></div>
+</section>
+<section id="records" class="view hidden"><div class="panel"><h2>歷史學習紀錄</h2><div class="toolbar"><input id="search" placeholder="搜尋主題、詞彙或內容……" style="max-width:360px"><select id="filterPhase" style="max-width:190px"><option value="">所有階段</option><option value="1">Phase 1</option><option value="2">Phase 2</option><option value="3">Phase 3</option><option value="4">Phase 4+</option></select></div><div id="recordList" class="empty">尚無紀錄</div></div></section>
+<section id="vocab" class="view hidden"><div class="panel"><h2>詞彙複習清單</h2><p class="hint">詞彙由每堂課的紀錄自動彙整。可標記「熟悉」，也可依照複習日期再次練習。</p><div id="vocabList" class="empty">尚未新增詞彙。</div></div></section>
+<section id="backup" class="view hidden"><div class="panel"><h2>資料備份與還原</h2><p>目前版本將資料儲存在這台裝置的瀏覽器中。清除瀏覽器資料或更換裝置前，請先匯出 JSON 備份。</p><div class="actions"><button class="primary" id="export">匯出 JSON 備份</button><label class="secondary" style="display:inline-flex;align-items:center;cursor:pointer;margin:0">匯入 JSON 備份<input id="importFile" type="file" accept="application/json,.json" hidden></label></div><p class="hint" style="margin-top:14px">重要：GitHub Pages 負責網站發布，不會自動同步不同裝置的紀錄。跨裝置同步需要再串接具備登入與資料庫的服務（例如 Supabase）；本版先完成可用的學習紀錄、離線開啟及備份功能。</p></div></section>
+<footer class="hint" style="text-align:center;padding:12px">Lifelong English Learning · Your progress, one lesson at a time.</footer>
+</main>
+<script>
+const KEY='lifelongEnglishLearning.v1';
+let records=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(records));render()}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function words(r){return (r.vocabulary||'').split(/\n/).map(x=>x.trim()).filter(Boolean).map(line=>{const a=line.split('｜');return {term:a[0]||'',meaning:a[1]||'',pron:a[2]||'',example:a[3]||''}})}
+function phaseName(p){return ({1:'Phase 1｜半年基礎強化',2:'Phase 2｜商務英文進階',3:'Phase 3｜專業英文深化',4:'Phase 4+｜持續進階'})[p]||'Phase 1'}
+function render(){
+ const sorted=[...records].sort((a,b)=>b.date.localeCompare(a.date));
+ document.getElementById('count').textContent=records.length;
+ document.getElementById('hours').textContent=(records.reduce((s,r)=>s+(+r.minutes||0),0)/60).toFixed(1)+' h';
+ document.getElementById('words').textContent=records.reduce((s,r)=>s+words(r).length,0);
+ document.getElementById('last').textContent=sorted[0]?.date||'—';
+ [1,2,3,4].forEach(p=>{const n=records.filter(r=>+r.phase===p).length;document.getElementById('p'+p).style.width=Math.min(100,n*10)+'%'});
+ const recent=document.getElementById('recent');
+ recent.innerHTML=sorted.length?sorted.slice(0,3).map(r=>logHTML(r,false)).join(''):'目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。';
+ renderRecords();renderVocab();
+}
+function logHTML(r,buttons=true){return '<article class="log"><div class="logtop"><div><h3>'+esc(r.topic||'未命名課程')+'</h3><div class="meta">'+esc(r.date)+' ・ '+esc(phaseName(r.phase))+' ・ '+esc(r.minutes||0)+' 分鐘</div></div>'+(buttons?'<div class="actions"><button class="secondary" onclick="editRecord(\''+r.id+'\')">編輯</button><button class="danger" onclick="deleteRecord(\''+r.id+'\')">刪除</button></div>':'')+'</div>'+['vocabulary','listening','grammar','speaking','mastered','review','next'].filter(k=>r[k]).map(k=>'<p><b>'+({vocabulary:'詞彙',listening:'聽力／發音',grammar:'文法／用字',speaking:'口說練習',mastered:'已熟悉',review:'待複習',next:'下一堂目標'}[k])+'：</b>'+esc(r[k])+'</p>').join('')+'</article>'}
+function renderRecords(){const q=(document.getElementById('search')?.value||'').toLowerCase(),p=document.getElementById('filterPhase')?.value||'';const a=[...records].sort((x,y)=>y.date.localeCompare(x.date)).filter(r=>(!p||String(r.phase)===p)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));document.getElementById('recordList').innerHTML=a.length?a.map(r=>logHTML(r)).join(''):'沒有符合條件的紀錄。'}
+function renderVocab(){const all=records.flatMap(r=>words(r).map(w=>({...w,date:r.date,id:r.id,key:r.id+'-'+w.term})));const el=document.getElementById('vocabList');el.innerHTML=all.length?all.map(w=>'<div class="vocab"><strong>'+esc(w.term)+'</strong> '+esc(w.meaning)+'<div class="meta">'+esc(w.pron)+' ・ '+esc(w.date)+'</div>'+(w.example?'<div>'+esc(w.example)+'</div>':'')+'</div>').join(''):'尚未新增詞彙。'}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='records')renderRecords()}));
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
+document.getElementById('recordForm').addEventListener('submit',e=>{e.preventDefault();const id=document.getElementById('editId').value;const r={id:id||crypto.randomUUID(),date:date.value,phase:phase.value,minutes:minutes.value,topic:topic.value,vocabulary:vocabulary.value,listening:listening.value,grammar:grammar.value,speaking:speaking.value,mastered:mastered.value,review:review.value,next:next.value};if(id)records=records.map(x=>x.id===id?r:x);else records.push(r);save();resetForm();document.querySelector('[data-tab="records"]').click()});
+function resetForm(){recordForm.reset();editId.value='';formTitle.textContent='新增一堂學習紀錄';date.value=new Date().toISOString().slice(0,10)}
+document.getElementById('clearForm').onclick=resetForm;
+window.editRecord=id=>{const r=records.find(x=>x.id===id);if(!r)return;document.querySelector('[data-tab="add"]').click();editId.value=r.id;formTitle.textContent='編輯學習紀錄';Object.keys(r).forEach(k=>{const el=document.getElementById(k);if(el)el.value=r[k]})};
+window.deleteRecord=id=>{if(confirm('確定刪除這筆學習紀錄？此動作無法復原，建議先備份。')){records=records.filter(r=>r.id!==id);save()}};
+document.getElementById('search').addEventListener('input',renderRecords);document.getElementById('filterPhase').addEventListener('change',renderRecords);
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Lifelong English Learning',version:1,exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='english-learning-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
+document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw Error('格式不正確');if(confirm('匯入 '+incoming.length+' 筆紀錄？目前資料將與備份合併，同 ID 的紀錄以備份內容為準。')){const m=new Map(records.map(r=>[r.id,r]));incoming.forEach((r,i)=>m.set(r.id||('import-'+Date.now()+'-'+i),r));records=[...m.values()];save();alert('匯入完成。')} }catch(err){alert('無法匯入：'+err.message)}e.target.value=''};
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();
+</script>
+</body></html>
