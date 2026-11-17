@@ -185,7 +185,12 @@ document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringi
 document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw Error('格式不正確');if(confirm('匯入 '+incoming.length+' 筆紀錄？目前資料將與備份合併，同 ID 的紀錄以匯入內容為準。匯入前會先保留目前資料的自動備份。')){writeSafetyBackup(records);const m=new Map(records.map(r=>[r.id,r]));incoming.forEach((r,i)=>{if(!r||typeof r!=='object')throw Error('備份內含無效紀錄');m.set(r.id||('import-'+Date.now()+'-'+i),r)});records=[...m.values()];save();alert('匯入完成。')} }catch(err){alert('無法匯入：'+err.message)}e.target.value=''};
 document.getElementById('restoreAuto').onclick=()=>{try{const b=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null');if(!b||!Array.isArray(b.records))throw Error('找不到有效的自動備份');if(!confirm('將以自動備份的 '+b.records.length+' 筆紀錄取代目前畫面資料？還原前會先備份目前資料。'))return;writeSafetyBackup(records);records=b.records;localStorage.setItem(KEY,JSON.stringify(records));render();renderBackupStatus();alert('已從本機自動備份還原。');}catch(err){alert('還原失敗：'+err.message)}};
 if(!localStorage.getItem(BACKUP_KEY)&&records.length){try{writeSafetyBackup(records)}catch(e){}}
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{
+    registration.update().catch(()=>{});
+    if(registration.waiting) registration.waiting.postMessage({type:'SKIP_WAITING'});
+  }).catch(()=>{});
+}
 render();renderBackupStatus();
 </script>
 </body></html>
