@@ -98,7 +98,7 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
   <article class="phase"><b>Phase 3｜專業英文深化</b><p>Optics・Semiconductor・AI・Technology</p><span class="tag">六個月內盡可能涵蓋</span><div class="progress"><i id="p3"></i></div></article>
   <article class="phase"><b>Phase 4+｜持續進階</b><p>流利表達、即席應答、國際溝通</p><span class="tag">長期持續，不設期限</span><div class="progress"><i id="p4"></i></div></article>
  </div><p class="hint">階段進度依已儲存的課程紀錄自動估算；這是學習活動統計，不代表能力測驗結果。</p></div>
- <div class="panel"><h2>最近學習</h2><div id="recent" class="empty">目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。</div></div>
+ <div class="panel"><h2>學習總覽</h2><div class="toolbar"><label style="margin:0;align-self:center" for="overviewDate">查看指定日期</label><input id="overviewDate" type="date" aria-label="總覽日期" style="max-width:190px"><button type="button" class="secondary" id="clearOverviewDate">顯示最近學習</button></div><div id="recent" class="empty">目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。</div></div>
 </section>
 <section id="add" class="view hidden">
  <div class="panel"><h2 id="formTitle">新增一堂學習紀錄</h2><form id="recordForm">
@@ -120,7 +120,7 @@ form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{displ
  </form></div>
 </section>
 <section id="records" class="view hidden"><div class="panel"><h2>歷史學習紀錄</h2><div class="toolbar"><input id="search" placeholder="搜尋主題、詞彙或內容……" style="max-width:300px"><input id="filterDate" type="date" aria-label="選擇學習日期" title="選擇要查看的日期" style="max-width:190px"><select id="filterPhase" style="max-width:190px"><option value="">所有階段</option><option value="1">Phase 1</option><option value="2">Phase 2</option><option value="3">Phase 3</option><option value="4">Phase 4+</option></select><button type="button" class="secondary" id="clearFilters">清除篩選</button></div><div id="recordList" class="empty">尚無紀錄</div></div></section>
-<section id="vocab" class="view hidden"><div class="panel"><h2>詞彙複習清單</h2><p class="hint">詞彙由每堂課的紀錄自動彙整。可標記「熟悉」，也可依照複習日期再次練習。</p><div id="vocabList" class="empty">尚未新增詞彙。</div></div></section>
+<section id="vocab" class="view hidden"><div class="panel"><h2>詞彙複習清單</h2><p class="hint">詞彙由每堂課的紀錄自動彙整。可依日期查看當天課程的詞彙，避免清單過長。</p><div class="toolbar"><label for="vocabDate" style="margin:0;align-self:center">學習日期</label><input id="vocabDate" type="date" aria-label="詞彙學習日期" style="max-width:190px"><button type="button" class="secondary" id="clearVocabDate">顯示全部詞彙</button></div><div id="vocabCount" class="hint"></div><div id="vocabList" class="empty">尚未新增詞彙。</div></div></section>
 <section id="backup" class="view hidden">
  <div class="panel"><h2>資料備份與還原</h2>
  <p>目前資料儲存在這台裝置的瀏覽器，並有本機安全備份。Google Drive 跨裝置同步仍在設定中；ChatGPT 課後紀錄自動寫入 App 也尚未完成整合。</p>
@@ -156,8 +156,7 @@ function render(){
  document.getElementById('words').textContent=records.reduce((s,r)=>s+words(r).length,0);
  document.getElementById('last').textContent=sorted[0]?.date||'—';
  [1,2,3,4].forEach(p=>{const n=records.filter(r=>+r.phase===p).length;document.getElementById('p'+p).style.width=Math.min(100,n*10)+'%'});
- const recent=document.getElementById('recent');
- recent.innerHTML=sorted.length?sorted.slice(0,3).map(r=>logHTML(r,false)).join(''):'目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。';
+ renderOverview();
  renderRecords();renderVocab();
 }
 function formatNote(value){
@@ -171,8 +170,9 @@ const actions=buttons ? '<div class="actions"><button class="secondary" data-edi
 return '<article class="log"><div class="logtop"><div><h3>'+esc(r.topic||'未命名課程')+'</h3><div class="meta">'+esc(r.date)+' ・ '+esc(phaseName(r.phase))+' ・ '+esc(r.minutes||0)+' 分鐘</div></div>'+actions+'</div>'+notes+'</article>';
 }
 document.addEventListener('click',e=>{const edit=e.target.closest('[data-edit]');const del=e.target.closest('[data-delete]');if(edit)window.editRecord(edit.dataset.edit);if(del)window.deleteRecord(del.dataset.delete);});
+function renderOverview(){const d=document.getElementById('overviewDate')?.value||'';const a=[...records].sort((x,y)=>y.date.localeCompare(x.date)).filter(r=>!d||r.date===d);document.getElementById('recent').innerHTML=a.length?a.map(r=>logHTML(r,false)).join(''):(d?'這一天沒有學習紀錄。':'目前還沒有學習紀錄。完成第一堂課後，就可以在這裡累積進度。');}
 function renderRecords(){const q=(document.getElementById('search')?.value||'').toLowerCase(),p=document.getElementById('filterPhase')?.value||'',d=document.getElementById('filterDate')?.value||'';const a=[...records].sort((x,y)=>y.date.localeCompare(x.date)).filter(r=>(!p||String(r.phase)===p)&&(!d||r.date===d)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));document.getElementById('recordList').innerHTML=a.length?a.map(r=>logHTML(r)).join(''):'沒有符合條件的紀錄。'}
-function renderVocab(){const all=records.flatMap(r=>words(r).map(w=>({...w,date:r.date,id:r.id,key:r.id+'-'+w.term})));const el=document.getElementById('vocabList');el.innerHTML=all.length?all.map(w=>'<div class="vocab"><strong>'+esc(w.term)+'</strong> '+esc(w.meaning)+'<div class="meta">'+esc(w.pron)+' ・ '+esc(w.date)+'</div>'+(w.example?'<div>'+esc(w.example)+'</div>':'')+'</div>').join(''):'尚未新增詞彙。'}
+function renderVocab(){const d=document.getElementById('vocabDate')?.value||'';const all=records.filter(r=>!d||r.date===d).flatMap(r=>words(r).map(w=>({...w,date:r.date,id:r.id,key:r.id+'-'+w.term}))).sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('vocabList');document.getElementById('vocabCount').textContent='目前顯示 '+all.length+' 個詞彙／片語'+(d?'（'+d+'）':'（全部日期）');el.innerHTML=all.length?all.map(w=>'<div class="vocab"><strong>'+esc(w.term)+'</strong> '+esc(w.meaning)+'<div class="meta">'+esc(w.pron)+' ・ '+esc(w.date)+'</div>'+(w.example?'<div>'+esc(w.example)+'</div>':'')+'</div>').join(''):'這個日期沒有詞彙紀錄。'}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='records')renderRecords()}));
 document.getElementById('date').value=new Date().toISOString().slice(0,10);
 document.getElementById('recordForm').addEventListener('submit',e=>{e.preventDefault();const id=document.getElementById('editId').value;const r={id:id||crypto.randomUUID(),date:date.value,phase:phase.value,minutes:minutes.value,topic:topic.value,vocabulary:vocabulary.value,listening:listening.value,grammar:grammar.value,speaking:speaking.value,mastered:mastered.value,review:review.value,next:next.value};if(id)records=records.map(x=>x.id===id?r:x);else records.push(r);save();resetForm();document.querySelector('[data-tab="records"]').click()});
@@ -181,6 +181,8 @@ document.getElementById('clearForm').onclick=resetForm;
 window.editRecord=id=>{const r=records.find(x=>x.id===id);if(!r)return;document.querySelector('[data-tab="add"]').click();editId.value=r.id;formTitle.textContent='編輯學習紀錄';Object.keys(r).forEach(k=>{const el=document.getElementById(k);if(el)el.value=r[k]})};
 window.deleteRecord=id=>{if(confirm('確定刪除這筆學習紀錄？此動作無法復原，建議先備份。')){records=records.filter(r=>r.id!==id);save()}};
 document.getElementById('search').addEventListener('input',renderRecords);document.getElementById('filterPhase').addEventListener('change',renderRecords);document.getElementById('filterDate').addEventListener('change',renderRecords);document.getElementById('clearFilters').addEventListener('click',()=>{document.getElementById('search').value='';document.getElementById('filterPhase').value='';document.getElementById('filterDate').value='';renderRecords()});
+document.getElementById('overviewDate').addEventListener('change',renderOverview);document.getElementById('clearOverviewDate').addEventListener('click',()=>{document.getElementById('overviewDate').value='';renderOverview()});
+document.getElementById('vocabDate').addEventListener('change',renderVocab);document.getElementById('clearVocabDate').addEventListener('click',()=>{document.getElementById('vocabDate').value='';renderVocab()});
 document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Lifelong English Learning',version:1,exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='english-learning-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
 document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw Error('格式不正確');if(confirm('匯入 '+incoming.length+' 筆紀錄？目前資料將與備份合併，同 ID 的紀錄以匯入內容為準。匯入前會先保留目前資料的自動備份。')){writeSafetyBackup(records);const m=new Map(records.map(r=>[r.id,r]));incoming.forEach((r,i)=>{if(!r||typeof r!=='object')throw Error('備份內含無效紀錄');m.set(r.id||('import-'+Date.now()+'-'+i),r)});records=[...m.values()];save();alert('匯入完成。')} }catch(err){alert('無法匯入：'+err.message)}e.target.value=''};
 document.getElementById('restoreAuto').onclick=()=>{try{const b=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null');if(!b||!Array.isArray(b.records))throw Error('找不到有效的自動備份');if(!confirm('將以自動備份的 '+b.records.length+' 筆紀錄取代目前畫面資料？還原前會先備份目前資料。'))return;writeSafetyBackup(records);records=b.records;localStorage.setItem(KEY,JSON.stringify(records));render();renderBackupStatus();alert('已從本機自動備份還原。');}catch(err){alert('還原失敗：'+err.message)}};
