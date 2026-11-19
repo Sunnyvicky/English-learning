@@ -1,4 +1,4 @@
-const CACHE='lifelong-english-v12';
+const CACHE='lifelong-english-v13';
 const FILES=['./','./index.html','./manifest.webmanifest','./icons/app-icon.svg'];
 
 self.addEventListener('install',event=>{
